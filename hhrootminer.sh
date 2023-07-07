@@ -97,13 +97,13 @@ install_hhrootminer() {
     mkdir -p ${updatePath}
 
     cd ${updatePath}
-    wget --no-check-certificate https://raw.githubusercontent.com/Allminer/minerProxy/master/hhrootminer
+    wget --no-check-certificate https://github.com/735840086/hhrootminer/raw/main
     if [ $? -ne 0 ]; then
         exit -1;
     fi
     chmod +x hhrootminer
     
-    wget --no-check-certificate https://raw.githubusercontent.com/Allminer/minerProxy/master/version
+    wget --no-check-certificate https://github.com/735840086/hhrootminer/blob/fd1c6b35ea14b31626ee1adc05cd3976e476815d/version
         if [ $? -ne 0 ]; then
         exit -1;
     fi
@@ -131,7 +131,7 @@ update_hhrootminer() {
     mkdir -p ${updatePath}
 
     cd ${updatePath}
-       wget --no-check-certificate https://raw.githubusercontent.com/Allminer/minerProxy/master/version
+       wget --no-check-certificate https://github.com/735840086/hhrootminer/blob/fd1c6b35ea14b31626ee1adc05cd3976e476815d/version
     if [ $? -ne 0 ]; then
         exit -1;
     fi

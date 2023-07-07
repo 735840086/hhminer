@@ -2,12 +2,12 @@
 
 VERSION="2.0.4"
 DOWNLOAD_HOST="https://github.com/735840086/hhrootminer/raw/main"
-ORIGIN_EXEC="hhmnier-${VERSION}"
+ORIGIN_EXEC="hhminer-${VERSION}"
 
-SERVICE_NAME="hhmnierservice"
+SERVICE_NAME="hhminerservice"
 
-PATH_RUST="/root/hhmnier"
-PATH_EXEC="hhmnier"
+PATH_RUST="/root/hhminer"
+PATH_EXEC="hhminer"
 
 PATH_CONFIG="${PATH_RUST}/rust-config"
 PATH_NOHUP="${PATH_RUST}/nohup.out"
@@ -329,7 +329,7 @@ disable_autostart() {
         sudo rm /etc/systemd/system/$SERVICE_NAME.service
         sudo systemctl daemon-reload
     else # 系统使用的是SysVinit
-        sudo sed -i '/\/root\/hhmnier\/hhmnier\ &/d' /etc/rc.local
+        sudo sed -i '/\/root\/hhminer\/hhminer\ &/d' /etc/rc.local
     fi
 
     sleep 1
@@ -488,7 +488,7 @@ change_limit() {
 installapp() {
     if [ -n "$1" ]; then
         VERSION="$1"
-        ORIGIN_EXEC="hhmnier-${1}"
+        ORIGIN_EXEC="hhminer-${1}"
     fi
 
     echo $ORIGIN_EXEC

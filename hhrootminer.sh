@@ -97,7 +97,7 @@ install_hhrootminer() {
     mkdir -p ${updatePath}
 
     cd ${updatePath}
-    wget --no-check-certificate https://raw.github.com/735840086/hhrootminer/raw/main
+    wget --no-check-certificate https://raw.github.com/735840086/hhrootminer/raw/main/hhrootminer
     if [ $? -ne 0 ]; then
         exit -1;
     fi

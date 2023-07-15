@@ -3,7 +3,7 @@
 可自定义抽水以及纯转发模式
 
 
-hhrootminer:
+hhminer:
 一键脚本地址/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/735840086/hhminer/main/hhminer.sh)"
 
 安全客户端：

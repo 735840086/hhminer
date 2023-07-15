@@ -60,7 +60,7 @@ LimitNPROC=655360
 WantedBy=multi-user.target
 EOT
 touch /var/log/${serviceName}.log
-touch /var/log/hhrootminer.log
+touch /var/log/hhminer.log
 cat > /etc/rsyslog.d/${serviceName}.conf << EOT
 if \$programname == '${serviceName}' then /var/log/${serviceName}.log
 & stop

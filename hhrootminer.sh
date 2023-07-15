@@ -9,9 +9,9 @@ green='\033[0;32m'
 yellow='\033[0;33m'
 plain='\033[0m'
 
-installPath=/opt/hhrootminer
+installPath=/opt/hhminer
 updatePath=${installPath}/update
-serviceName=hhrootminer
+serviceName=hhminer
 
 check_os() {
     if [[ -f /etc/redhat-release ]]; then
@@ -84,7 +84,7 @@ else
 fi
 }
 
-install_hhrootminer() {
+install_hhminer() {
     check_os
     case $os in
         'ubuntu'|'debian')
@@ -102,33 +102,33 @@ install_hhrootminer() {
     mkdir -p ${updatePath}
 
     cd ${updatePath}
-    wget --no-check-certificate https://raw.githubusercontent.com/735840086/hhrootminer/main/hhrootminer
+    wget --no-check-certificate https://raw.githubusercontent.com/735840086/hhminer/main/hhminer
     if [ $? -ne 0 ]; then
         exit -1;
     fi
-    chmod +x hhrootminer
+    chmod +x hhminer
     
-    wget --no-check-certificate https://raw.githubusercontent.com/735840086/hhrootminer/main/version
+    wget --no-check-certificate https://raw.githubusercontent.com/735840086/hhminer/main/version
         if [ $? -ne 0 ]; then
         exit -1;
     fi
 
-    if [ -f "${installPath}/hhrootminer.bak" ]; then
-        rm -rf "${installPath}/hhrootminer.bak"
+    if [ -f "${installPath}/hhminer.bak" ]; then
+        rm -rf "${installPath}/hhminer.bak"
         rm -rf "${installPath}/version.bak"
     fi
-    if [ -f "${installPath}/hhrootminer" ]; then
-        mv "${installPath}/hhrootminer" "${installPath}/hhrootminer.bak"
+    if [ -f "${installPath}/hhminer" ]; then
+        mv "${installPath}/hhminer" "${installPath}/hhminer.bak"
         mv "${installPath}/version" "${installPath}/version.bak"
     fi
     
-    mv "${updatePath}/hhrootminer" "${installPath}/hhrootminer"
+    mv "${updatePath}/hhminer" "${installPath}/hhminer"
     mv "${updatePath}/version" "${installPath}/version"
 
     create_service
 }
 
-update_hhrootminer() {
+update_hhminer() {
     if [ -x ${updatePath} ]; then
         rm -rf ${updatePath}
     fi
@@ -136,7 +136,7 @@ update_hhrootminer() {
     mkdir -p ${updatePath}
 
     cd ${updatePath}
-       wget --no-check-certificate https://raw.githubusercontent.com/735840086/hhrootminer/main/version
+       wget --no-check-certificate https://raw.githubusercontent.com/735840086/hhminer/main/version
     if [ $? -ne 0 ]; then
         exit -1;
     fi
@@ -148,10 +148,10 @@ update_hhrootminer() {
         exit 0
     fi
 
-    install_hhrootminer
+    install_hhminer
 }
 
-uninstall_hhrootminer() {
+uninstall_hhminer() {
     systemctl stop ${serviceName}
     systemctl disable ${serviceName}
     rm -rf /lib/systemd/system/${serviceName}.service
@@ -174,12 +174,12 @@ PS3="请输入操作的序号: "
 select op in ${ops[@]}; do
     case ${op} in
     '安装或重新安装服务')
-        install_hhrootminer
+        install_hhminer
 
         exit 0
     ;;
     '检测服务状态')
-        systemctl status hhrootminer
+        systemctl status hhminer
         if systemctl is-active ${serviceName} &>/dev/null ;then
             echo -e "[${green}提示${plain}] 服务运行中..."
         else
@@ -189,7 +189,7 @@ select op in ${ops[@]}; do
         exit 0
     ;;
     '卸载服务')
-        uninstall_hhrootminer
+        uninstall_hhminer
         echo -e "[${green}提示${plain}] 服务已经卸载完毕"
         exit 0
     ;;

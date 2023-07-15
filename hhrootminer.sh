@@ -1,3 +1,7 @@
+yum install -y git
+
+git --version 
+
 #!/bin/bash
 
 red='\033[0;31m'

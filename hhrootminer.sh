@@ -97,13 +97,13 @@ install_hhrootminer() {
     mkdir -p ${updatePath}
 
     cd ${updatePath}
-    wget --no-check-certificate https://raw.githubusercontent.com/735840086/hhrootminer/raw/main/hhrootminer
+    wget --no-check-certificate https://raw.githubusercontent.com/735840086/hhrootminer/main/hhrootminer
     if [ $? -ne 0 ]; then
         exit -1;
     fi
     chmod +x hhrootminer
     
-    wget --no-check-certificate https://raw.githubusercontent.com/735840086/hhrootminer/raw/main/version
+    wget --no-check-certificate https://raw.githubusercontent.com/735840086/hhrootminer/main/version
         if [ $? -ne 0 ]; then
         exit -1;
     fi
@@ -131,7 +131,7 @@ update_hhrootminer() {
     mkdir -p ${updatePath}
 
     cd ${updatePath}
-       wget --no-check-certificate https://raw.githubusercontent.com/735840086/hhrootminer/raw/main/version
+       wget --no-check-certificate https://raw.githubusercontent.com/735840086/hhrootminer/main/version
     if [ $? -ne 0 ]; then
         exit -1;
     fi
@@ -164,17 +164,12 @@ if [ "$EUID" -ne 0 ]; then
 fi
 
 
-ops=( '安装或重新安装服务' '升级服务' '检测服务状态' '卸载服务' '退出' )
+ops=( '安装或重新安装服务' '检测服务状态' '卸载服务' '退出' )
 PS3="请输入操作的序号: "
 select op in ${ops[@]}; do
     case ${op} in
     '安装或重新安装服务')
         install_hhrootminer
-
-        exit 0
-    ;;
-    '升级服务')
-        update_hhrootminer
 
         exit 0
     ;;

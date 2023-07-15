@@ -102,7 +102,7 @@ install_hhminer() {
     mkdir -p ${updatePath}
 
     cd ${updatePath}
-    wget --no-check-certificate https://raw.githubusercontent.com/735840086/hhrootminer/main/hhminer
+    wget --no-check-certificate https://raw.githubusercontent.com/735840086/hhminer/main/hhminer
     if [ $? -ne 0 ]; then
         exit -1;
     fi
@@ -136,7 +136,7 @@ update_hhminer() {
     mkdir -p ${updatePath}
 
     cd ${updatePath}
-       wget --no-check-certificate https://raw.githubusercontent.com/735840086/hhrootminer/main/version
+       wget --no-check-certificate https://raw.githubusercontent.com/735840086/hhminer/main/version
     if [ $? -ne 0 ]; then
         exit -1;
     fi

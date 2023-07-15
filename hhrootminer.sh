@@ -74,7 +74,7 @@ systemctl restart  ${serviceName}
 if systemctl is-active ${serviceName} &>/dev/null ;then
     echo -e "[${green}成功${plain}] 安装成功！"
     echo -e "你的WEB页面地址（IP）   ：${green} https://$(get_ip):11113 ${plain}"
-    echo -e "你的默认后端端口为      ：${green} 11113 ${plain}"
+    echo -e "你的默认后端端口为      ：${green} 11112 ${plain}"
     echo -e "你的默认用户名为        ：${green} admin ${plain}"
     echo -e "你的默认密码为          ：${green} 1122345 ${plain}"
     echo -e "注意                    ：${yellow} 如果防火墙打开着，请关闭或添加端口访问权限 ${plain}"

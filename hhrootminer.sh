@@ -59,7 +59,7 @@ LimitNPROC=655360
 [Install]
 WantedBy=multi-user.target
 EOT
-
+touch /var/log/${serviceName}.log
 cat > /etc/rsyslog.d/${serviceName}.conf << EOT
 if \$programname == '${serviceName}' then /var/log/${serviceName}.log
 & stop

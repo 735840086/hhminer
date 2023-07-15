@@ -4,7 +4,7 @@
 
 
 hhrootminer:
-一键脚本地址/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/735840086/hhrootminer/main/hhrootminer.sh)"
+一键脚本地址/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/735840086/hhminer/main/hhminer.sh)"
 
 安全客户端：
 一键脚本地址/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/735840086/SecClient/main/seclient.sh)"

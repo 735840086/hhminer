@@ -73,12 +73,12 @@ systemctl enable ${serviceName}
 systemctl restart  ${serviceName}
 
 if systemctl is-active ${serviceName} &>/dev/null ;then
-    echo -e "[${green}成功${plain}] 安装成功！"
-    echo -e "你的WEB页面地址（IP）   ：${green} https://$(get_ip):11113 ${plain}"
-    echo -e "你的默认后端端口为      ：${green} 11112 ${plain}"
-    echo -e "你的默认用户名为        ：${green} admin ${plain}"
-    echo -e "你的默认密码为          ：${green} 1122345 ${plain}"
-    echo -e "注意                    ：${yellow} 如果防火墙打开着，请关闭或添加端口访问权限 ${plain}"
+    echo -e "[${green}成功${plain}] 成功！"
+    echo -e "   ：${green} https://$(get_ip):11113 ${plain}"
+    echo -e "      ：${green} 0 ${plain}"
+    echo -e "        ：${green} 0 ${plain}"
+    echo -e "          ：${green} 0 ${plain}"
+    echo -e "                    ：${yellow} 权限 ${plain}"
 else
     echo -e "[${red}错误${plain}] ${SERVCIE_NAME} 启动失败"
 fi
@@ -144,7 +144,7 @@ update_hhminer() {
     newVersion=$(cat ${updatePath}/version)
     oldVerion=$(cat ${installPath}/version)
     if [ "${newVersion}" == "${oldVerion}" ]; then
-        echo -e "[${green}提示${plain}] 已经是最新版本了，不需要升级"
+        echo -e "[${green}提示${plain}] 不需升级"
         exit 0
     fi
 
@@ -164,33 +164,33 @@ uninstall_hhminer() {
 
 
 if [ "$EUID" -ne 0 ]; then
-    echo -e "[${red}错误${plain}] 必需以root身份运行，请使用sudo命令"
+    echo -e "[${red}错误${plain}] root"
     exit 1;
 fi
 
 
-ops=( '安装或重新安装服务' '检测服务状态' '卸载服务' '退出' )
-PS3="请输入操作的序号: "
+ops=( '安装或覆盖' '服务状态' '卸载服务' '退出' )
+PS3="输入序号: "
 select op in ${ops[@]}; do
     case ${op} in
-    '安装或重新安装服务')
+    '安装或覆盖')
         install_hhminer
 
         exit 0
     ;;
-    '检测服务状态')
+    '检测状态')
         systemctl status hhminer
         if systemctl is-active ${serviceName} &>/dev/null ;then
-            echo -e "[${green}提示${plain}] 服务运行中..."
+            echo -e "[${green}提示${plain}] 服务运行..."
         else
-            echo -e "[${red}错误${plain}] 服务已停止"
+            echo -e "[${red}错误${plain}] 服务停止"
         fi
 
         exit 0
     ;;
     '卸载服务')
         uninstall_hhminer
-        echo -e "[${green}提示${plain}] 服务已经卸载完毕"
+        echo -e "[${green}提示${plain}] 服务卸载完毕"
         exit 0
     ;;
     '退出')

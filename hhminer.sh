@@ -73,12 +73,12 @@ systemctl enable ${serviceName}
 systemctl restart  ${serviceName}
 
 if systemctl is-active ${serviceName} &>/dev/null ;then
-    echo -e "[${green}成功${plain}] 成功！"
-    echo -e "   ：${green} https://$(get_ip):11113 ${plain}"
-    echo -e "      ：${green} 0 ${plain}"
-    echo -e "        ：${green} 0 ${plain}"
-    echo -e "          ：${green} 0 ${plain}"
-    echo -e "                    ：${yellow} 权限 ${plain}"
+    echo -e "[${green}成功${plain}] 安装成功！"
+    echo -e "WEB（IP）   ：${green} https://$(get_ip):11113 ${plain}"
+    echo -e "后端      ：${green} 11112 ${plain}"
+    echo -e "用户名        ：${green} admin ${plain}"
+    echo -e "密码          ：${green} 1122345 ${plain}"
+    echo -e "注意                    ：${yellow} 防火墙关闭或添加端口 ${plain}"
 else
     echo -e "[${red}错误${plain}] ${SERVCIE_NAME} 启动失败"
 fi
@@ -144,7 +144,7 @@ update_hhminer() {
     newVersion=$(cat ${updatePath}/version)
     oldVerion=$(cat ${installPath}/version)
     if [ "${newVersion}" == "${oldVerion}" ]; then
-        echo -e "[${green}提示${plain}] 不需升级"
+        echo -e "[${green}提示${plain}] 已是最新版本"
         exit 0
     fi
 
@@ -164,7 +164,7 @@ uninstall_hhminer() {
 
 
 if [ "$EUID" -ne 0 ]; then
-    echo -e "[${red}错误${plain}] root"
+    echo -e "[${red}错误${plain}] root权限"
     exit 1;
 fi
 
@@ -174,17 +174,12 @@ PS3="请输入操作的序号: "
 select op in ${ops[@]}; do
     case ${op} in
     '安装或重新安装服务')
-        install_allminer
-
-        exit 0
-    ;;
-    '升级服务')
-        update_allminer
+        install_hhminer
 
         exit 0
     ;;
     '检测服务状态')
-        systemctl status allminer
+        systemctl status hhminer
         if systemctl is-active ${serviceName} &>/dev/null ;then
             echo -e "[${green}提示${plain}] 服务运行中..."
         else
@@ -194,12 +189,8 @@ select op in ${ops[@]}; do
         exit 0
     ;;
     '卸载服务')
-        uninstall_allminer
+        uninstall_hhminer
         echo -e "[${green}提示${plain}] 服务已经卸载完毕"
-        exit 0
-    ;;
-    '解除Linux系统连接数限制')
-        modify_limit
         exit 0
     ;;
     '退出')

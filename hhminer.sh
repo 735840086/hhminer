@@ -169,7 +169,7 @@ if [ "$EUID" -ne 0 ]; then
 fi
 
 
-ops=( '安装或覆盖' '服务状态' '卸载服务' '退出' )
+ops=( '安装覆盖' '服务状态' '卸载服务' '退出' )
 PS3="输入序号: "
 select op in ${ops[@]}; do
     case ${op} in
@@ -197,6 +197,6 @@ select op in ${ops[@]}; do
         exit 0
     ;;
     *)
-        echo "请输入正确的序号"
+        echo "错误"
    esac
 done

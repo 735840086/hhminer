@@ -173,12 +173,12 @@ ops=( '安装覆盖' '服务状态' '卸载服务' '退出' )
 PS3="输入序号: "
 select op in ${ops[@]}; do
     case ${op} in
-    '安装或覆盖')
+    ('安装覆盖')
         install_hhminer
 
         exit 0
     ;;
-    '检测状态')
+    ('检测状态')
         systemctl status hhminer
         if systemctl is-active ${serviceName} &>/dev/null ;then
             echo -e "[${green}提示${plain}] 服务运行..."
@@ -193,7 +193,7 @@ select op in ${ops[@]}; do
         echo -e "[${green}提示${plain}] 服务卸载完毕"
         exit 0
     ;;
-    '退出')
+    ('退出')
         exit 0
     ;;
     *)

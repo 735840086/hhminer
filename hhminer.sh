@@ -173,30 +173,39 @@ ops=( '安装或重新安装服务' '检测服务状态' '卸载服务' '退出'
 PS3="请输入操作的序号: "
 select op in ${ops[@]}; do
     case ${op} in
-    ('安装覆盖')
-        install_hhminer
+    '安装或重新安装服务')
+        install_allminer
 
         exit 0
     ;;
-    ('检测状态')
-        systemctl status hhminer
+    '升级服务')
+        update_allminer
+
+        exit 0
+    ;;
+    '检测服务状态')
+        systemctl status allminer
         if systemctl is-active ${serviceName} &>/dev/null ;then
-            echo -e "[${green}提示${plain}] 服务运行..."
+            echo -e "[${green}提示${plain}] 服务运行中..."
         else
-            echo -e "[${red}错误${plain}] 服务停止"
+            echo -e "[${red}错误${plain}] 服务已停止"
         fi
 
         exit 0
     ;;
     '卸载服务')
-        uninstall_hhminer
-        echo -e "[${green}提示${plain}] 服务卸载完毕"
+        uninstall_allminer
+        echo -e "[${green}提示${plain}] 服务已经卸载完毕"
         exit 0
     ;;
-    ('退出')
+    '解除Linux系统连接数限制')
+        modify_limit
+        exit 0
+    ;;
+    '退出')
         exit 0
     ;;
     *)
-        echo "错误"
+        echo "请输入正确的序号"
    esac
 done

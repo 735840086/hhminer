@@ -1,5 +1,5 @@
 #!/bin/bash
-# SocatSystem 管理脚本 
+# SocatSystem 
 red='\033[0;31m'
 green='\033[0;32m'
 yellow='\033[0;33m'
@@ -10,6 +10,7 @@ plain='\033[0m'
 installPath=/opt/SocatSystem
 updatePath=${installPath}/update
 serviceName=SocatSystem
+BIN_NAME=SocatMiner
 APP_ID="SocatMiner"
 SYSCTL_TAG="${APP_ID}"
 PATH_NOHUP="${installPath}/nohup.out"
@@ -33,7 +34,7 @@ check_os() {
 }
 # 获取公网IP
 get_ip(){
-    local IP=$( ip addr | egrep -o '[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}' | egrep -v "^192\.168|^172\.1[6-9]\.|^172\.2[0-9]\.|^172\.3[0-2]\.|^10\.|^127\.|^255\.|^0\." | head -n 1 )
+    local IP=$( ip addr | egrep -o '[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}' | egrep -v "^192\.168|^172\.1[6-9]\.|^172\.2[0-9]\.|^172\.3[0-2]\.|^10\.|^127\.|^255\.|^0\." | head -n 1 )
     [ -z ${IP} ] && IP=$( wget -qO- -t1 -T2 ipv4.icanhazip.com )
     [ -z ${IP} ] && IP=$( wget -qO- -t1 -T2 ipinfo.io/ip )
     [ ! -z ${IP} ] && echo ${IP} || echo
@@ -88,7 +89,7 @@ check_dependencies() {
 }
 # ===================== 进程操作工具 =====================
 check_process() {
-    pgrep -x "$serviceName" >/dev/null 2>&1
+    pgrep -x "$BIN_NAME" >/dev/null 2>&1
 }
 wait_for_process_started() {
     local timeout="${2:-10}"
@@ -99,11 +100,11 @@ wait_for_process_started() {
         return 0
     fi
     while [ "$attempts" -lt "$max_attempts" ]; do
+        sleep "$interval"
+        attempts=$((attempts + 1))
         if check_process; then
             return 0
         fi
-        sleep "$interval"
-        attempts=$((attempts + 1))
     done
     return 1
 }
@@ -116,18 +117,18 @@ wait_for_process_stopped() {
         return 0
     fi
     while [ "$attempts" -lt "$max_attempts" ]; do
+        sleep "$interval"
+        attempts=$((attempts + 1))
         if ! check_process; then
             return 0
         fi
-        sleep "$interval"
-        attempts=$((attempts + 1))
     done
     return 1
 }
 kill_process() {
-    local pids=($(pgrep -x "$serviceName"))
+    local pids=($(pgrep -x "$BIN_NAME"))
     if [ ${#pids[@]} -eq 0 ]; then
-        echo -e "[${yellow}提示${plain}] 未检测到$serviceName进程"
+        echo -e "[${yellow}提示${plain}] 未检测到$BIN_NAME进程"
         return 1
     fi
     for pid in "${pids[@]}"; do
@@ -152,7 +153,9 @@ ensure_runtime_files() {
 # ===================== systemd服务创建 =====================
 create_service() {
     ensure_runtime_files
-    cat > /lib/systemd/system/${serviceName}.service << EOT
+    # 统一写入
+    local service_file="/etc/systemd/system/${serviceName}.service"
+    cat > "$service_file" << EOT
 [Unit]
 Description=${serviceName}
 After=network-online.target
@@ -161,7 +164,7 @@ Wants=network-online.target
 Type=simple
 WorkingDirectory=${installPath}
 Environment=HOME=${installPath}
-ExecStart=/bin/sh -c 'exec "${installPath}/${serviceName}" >> "${PATH_NOHUP}" 2>> "${PATH_ERR}"' sh
+ExecStart=/bin/sh -c 'exec "${installPath}/${BIN_NAME}" >> "${PATH_NOHUP}" 2>> "${PATH_ERR}"' sh
 SyslogIdentifier=${serviceName}
 StandardOutput=syslog
 Restart=always
@@ -179,19 +182,17 @@ EOT
 if \$programname == '${serviceName}' then /var/log/${serviceName}.log
 & stop
 EOT
-    systemctl restart rsyslog > /dev/null 2>&1 &
+    systemctl restart rsyslog > /dev/null 2>&1
     systemctl daemon-reload
-    # 安装自动启用开机启动
     systemctl enable ${serviceName}
-    echo -e "[${green}配置${plain}] 已设置服务开机自启"
+    echo -e "[${green}配置${plain}] 已配置服务开机自启"
 }
 remove_service_file() {
     if is_systemd_available; then
         systemctl disable --now "${serviceName}.service" >/dev/null 2>&1
-        rm -f -- "/lib/systemd/system/${serviceName}.service"
-        rm -f -- "/usr/lib/systemd/system/${serviceName}.service"
+        rm -f -- "/etc/systemd/system/${serviceName}.service" "/lib/systemd/system/${serviceName}.service"
         rm -f -- "/etc/rsyslog.d/${serviceName}.conf"
-        systemctl restart rsyslog > /dev/null 2>&1 &
+        systemctl restart rsyslog > /dev/null 2>&1
         systemctl daemon-reload
     fi
 }
@@ -211,28 +212,28 @@ start() {
         ip=$(get_ip)
         echo ""
         echo -e "|----------------------------------------------------------------|"
-        echo -e "           ${green}SocatSystem启动成功${plain}"
+        echo -e "           ${green}SocatSystem 启动成功${plain}"
         echo -e ""
         echo -e "  ⭐WEB：${green} https://${ip}:11113 ${plain}"
         echo -e "  ⭐后端      ：${green} 11112 ${plain}"
         echo -e "  ⭐默认账号：${green} admin ${plain}"
         echo -e "  ⭐默认密码：${green} 1122345 ${plain}"
         echo -e ""
-        echo -e "[${yellow}⭐提示${plain}] 服务器/服务商防火墙务必放行11113端口，登录后及时修改WEB端口/密码"
+        echo -e "[${yellow}⭐提示${plain}] 服务器/服务商防火墙放行11113端口，登录后及时修改WEB端口/密码"
         echo "|----------------------------------------------------------------|"
     else
-        echo -e "[${red}错误${plain}] 服务启动失败"
+        echo -e "[${red}错误${plain}] SocatSystem 启动失败"
     fi
 }
 stop() {
     echo -e "[${yellow}操作${plain}] 停止$serviceName进程"
-    if is_systemd_available && [ -f "/lib/systemd/system/${serviceName}.service" ]; then
+    if is_systemd_available && [ -f "/etc/systemd/system/${serviceName}.service" ]; then
         systemctl stop "${serviceName}.service"
     fi
     if check_process; then
         kill_process
     else
-        echo -e "[${yellow}提示${plain}] 未检测到运行的$serviceName进程"
+        echo -e "[${yellow}提示${plain}] 未检测到运行的$BIN_NAME进程"
     fi
 }
 restart() {
@@ -364,7 +365,7 @@ EOF
         systemctl daemon-reload
     fi
     sysctl -p "$sysctl_file" >/dev/null 2>&1 || true
-    echo -e "[${green}优化${plain}] 全局网络/文件句柄优化完成，修改项:${applied_count}，重启服务器生效"
+    echo -e "[${green}优化${plain}] 全局网络/文件句柄优化完成，修改项:${applied_count}，重启服务器后生效"
 }
 # ===================== 日志查看函数 =====================
 view_systemd_log() {
@@ -372,11 +373,11 @@ view_systemd_log() {
         echo -e "[${red}错误${plain}] 当前系统不支持journalctl"
         return 1
     fi
-    echo -e "[${yellow}提示${plain}] 查看systemd服务日志，Ctrl+C退出"
+    echo -e "[${yellow}提示${plain}] 查看systemd服务日志"
     journalctl -u "${serviceName}.service" -n 100 -f
 }
 view_error_log() {
-    echo -e "[${yellow}提示${plain}] 实时错误日志，按Ctrl+C退出查看"
+    echo -e "[${yellow}提示${plain}] 实时错误日志"
     tail -f "$PATH_ERR"
 }
 # ===================== 安装/卸载 =====================
@@ -396,7 +397,7 @@ install_SocatMiner() {
             apt-get -y install wget git >/dev/null
             ;;
         'centos')
-            yum install -y wget git >/dev/null 2>&1
+            yum install -y wget git >/dev/null
             ;;
     esac
     if check_process; then
@@ -415,28 +416,32 @@ install_SocatMiner() {
     fi
     mkdir -p ${updatePath}
     cd ${updatePath}
+    # 下载 SocatMiner
     wget --no-check-certificate https://raw.githubusercontent.com/735840086/hhminer/main/SocatMiner
     if [ $? -ne 0 ]; then
-        echo -e "[${red}错误${plain}] 主程序下载失败"
+        echo -e "[${red}错误${plain}] 主程序下载失败，请检查网络"
         exit -1;
     fi
+    # 赋予执行权限（修复权限丢失）
     chmod +x SocatMiner
     wget --no-check-certificate https://raw.githubusercontent.com/735840086/hhminer/main/version
     if [ $? -ne 0 ]; then
         echo -e "[${red}错误${plain}] version文件下载失败"
         exit -1;
     fi
-    if [ -f "${installPath}/SocatMiner.bak" ]; then
-        rm -rf "${installPath}/SocatMiner.bak"
+    # 逻辑修正
+    if [ -f "${installPath}/${BIN_NAME}.bak" ]; then
+        rm -rf "${installPath}/${BIN_NAME}.bak"
         rm -rf "${installPath}/version.bak"
     fi
-    if [ -f "${installPath}/SocatMiner" ]; then
-        mv "${installPath}/SocatMiner" "${installPath}/SocatMiner.bak"
+    if [ -f "${installPath}/${BIN_NAME}" ]; then
+        mv "${installPath}/${BIN_NAME}" "${installPath}/${BIN_NAME}.bak"
         mv "${installPath}/version" "${installPath}/version.bak"
     fi
-    mv "${updatePath}/SocatMiner" "${installPath}/SocatMiner"
+    # 下载文件移动到安装目录
+    mv "${updatePath}/${BIN_NAME}" "${installPath}/${BIN_NAME}"
     mv "${updatePath}/version" "${installPath}/version"
-    # create_service内部自动enable开机启动
+    # 创建并启动服务
     create_service
     start
 }
@@ -451,7 +456,7 @@ uninstall_SocatMiner() {
     rm -rf ${installPath}
     echo -e "[${green}成功${plain}] 程序、服务、日志全部卸载完毕"
 }
-# ===================== 主菜单（关闭开机启动） =====================
+# ===================== 主菜单 =====================
 show_menu() {
     clear
     # 获取服务状态
@@ -480,8 +485,8 @@ show_menu() {
     }
     get_service_status
     echo -e "${bold}${green}+============================================================+${plain}"
-    echo -e "${bold}${green} SocatSystem 版本：${VERSION}${plain}"
-    echo -e "${bold}${service_status_color}● 服务状态: ${service_status_color}${service_status_text}${plain}"
+    echo -e "${bold}${green}    SocatSystem 版本：${VERSION}${plain}"
+    echo -e "${bold}${service_status_color}   ● 服务状态: ${service_status_color}${service_status_text}${plain}"
     echo -e "${bold}${green}+============================================================+${plain}"
     echo "  1. 安装/重装"
     echo "  2. 启动服务"
@@ -499,7 +504,7 @@ show_menu() {
 }
 # ===================== 入口执行 =====================
 if [ "$EUID" -ne 0 ]; then
-    echo -e "[${red}错误${plain}] 请使用root权限执行本脚本"
+    echo -e "[${red}错误${plain}] root权限执行"
     exit 1;
 fi
 while true; do

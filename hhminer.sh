@@ -212,7 +212,7 @@ start() {
         ip=$(get_ip)
         echo ""
         echo -e "|===============================================================|"
-        echo -e "           ${green}SocatSystem 启动成功${plain}"
+        echo -e "           ${green}      SocatSystem 启动成功${plain}"
         echo -e ""
         echo -e "  ⭐WEB：${green} https://${ip}:11113 ${plain}"
         echo -e "  ⭐后端      ：${green} 11112 ${plain}"

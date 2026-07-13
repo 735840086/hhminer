@@ -213,14 +213,14 @@ start() {
         echo ""
         echo -e "|====================================================================|"
         echo -e "           ${green}               SocatSystem 启动成功${plain}"
-        echo -e "${bold}${service_status_color}                           ● ${blue}服务状态: ${service_status_color}${service_status_text}${plain}"
+        echo -e "${bold}${service_status_color}                      ● ${blue}服务状态: 返回菜单查看运行状态${plain}"
         echo -e ""
         echo -e "  ⭐WEB：${green} https://${ip}:11113 ${plain}"
         echo -e "  ⭐后端   ：${green} 11112 ${plain}"
         echo -e "  ⭐默认账号：${green} admin ${plain}"
         echo -e "  ⭐默认密码：${green} 1122345 ${plain}"
         echo -e ""
-        echo -e "[${yellow}⭐提示${plain}] 服务器/服务商防火墙放行11113端口，登录后及时修改WEB端口/密码"
+        echo -e "[${yellow}⭐提示${plain}] 登录前需服务商防火墙放行端口，登录后及时修改WEB端口/密码"
         echo "|====================================================================|"
     else
         echo -e "[${red}错误${plain}] SocatSystem 启动失败！！！"
@@ -420,7 +420,7 @@ install_SocatMiner() {
     # 下载 SocatMiner
     wget --no-check-certificate https://raw.githubusercontent.com/735840086/hhminer/main/SocatMiner
     if [ $? -ne 0 ]; then
-        echo -e "[${red}错误${plain}] 主程序下载失败，请检查网络"
+        echo -e "[${red}错误${plain}] 主程序下载失败"
         exit -1;
     fi
     # 赋予执行权限（修复权限丢失）

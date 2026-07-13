@@ -455,7 +455,7 @@ uninstall_SocatMiner() {
     stop
     remove_service_file
     rm -rf ${installPath}
-    echo -e "[${green}成功${plain}] 程序、服务、日志全部卸载完毕"
+    echo -e "[${green}成功${plain}] 程序、服务、日志卸载完毕并关闭开机自启"
 }
 # ===================== 主菜单 =====================
 show_menu() {

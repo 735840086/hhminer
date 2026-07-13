@@ -15,6 +15,7 @@ APP_ID="hhminer"
 SYSCTL_TAG="${APP_ID}"
 PATH_NOHUP="${installPath}/nohup.out"
 PATH_ERR="${installPath}/err.log"
+VERSION="3.0.0"
 
 # ===================== 系统OS检测 =====================
 check_os() {
@@ -184,7 +185,7 @@ remove_service_file() {
 
 # ===================== 启停核心函数 =====================
 start() {
-    echo -e "[${yellow}操作${plain}] 启动$serviceName代理程序"
+    echo -e "[${yellow}操作${plain}] 启动$serviceName服务"
     check_process
     if [ $? -eq 0 ]; then
         echo -e "[${yellow}提示${plain}] 程序已在运行，无需重复启动"
@@ -200,15 +201,15 @@ start() {
         echo -e "|----------------------------------------------------------------|"
         echo -e "           ${green}程序启动成功${plain}"
         echo -e ""
-        echo -e "WEB（IP）   ：${green} https://${ip}:11113 ${plain}"
-        echo -e "后端端口      ：${green} 11112 ${plain}"
-        echo -e "用户名        ：${green} admin ${plain}"
-        echo -e "密码          ：${green} 1122345 ${plain}"
+        echo -e "  ⭐WEB：${green} https://${ip}:11113 ${plain}"
+        echo -e "后端      ：${green} 11112 ${plain}"
+        echo -e "  ⭐默认账号：${green} admin ${plain}"
+        echo -e "  ⭐默认密码：${green} 1122345 ${plain}"
         echo -e ""
         echo -e "[${yellow}安全提示${plain}] 服务器/服务商防火墙务必放行11113端口，登录后修改默认密码"
         echo "|----------------------------------------------------------------|"
     else
-        echo -e "[${red}错误${plain}] 程序启动失败，请查看实时错误日志(菜单4)"
+        echo -e "[${red}错误${plain}] 服务启动失败"
     fi
 }
 
@@ -220,7 +221,7 @@ stop() {
     if check_process; then
         kill_process
     else
-        echo -e "[${yellow}提示${plain}] 未检测到运行中的$serviceName进程"
+        echo -e "[${yellow}提示${plain}] 未检测到运行的$serviceName进程"
     fi
 }
 
@@ -379,6 +380,11 @@ view_error_log() {
 install_hhminer() {
     check_os
     check_dependencies
+    # 新增：安装前自动执行TCP/文件句柄优化
+    echo -e "[${yellow}前置操作${plain}] 开始解除系统TCP/文件句柄连接限制"
+    apply_global_network_optimization
+    echo -e "[${green}完成${plain}] 系统内核优化执行完毕，继续部署程序"
+
     case $os in
         'ubuntu'|'debian')
             apt-get -y update >/dev/null 2>&1
@@ -389,8 +395,8 @@ install_hhminer() {
             ;;
     esac
     if check_process; then
-        echo -e "[${yellow}提示${plain}] 检测到hhminer正在运行，必须停止才能重装"
-        echo "1. 停止程序并继续安装"
+        echo -e "[${yellow}提示${plain}] 检测到服务正在运行，必须停止后重装"
+        echo "1. 停止程序并安装"
         echo "2. 取消安装"
         read -p "请选择: " choose
         case $choose in
@@ -399,7 +405,7 @@ install_hhminer() {
         *) echo -e "[${red}错误${plain}] 输入无效，取消安装"; return ;;
         esac
     fi
-    if [ -x ${updatePath} ]; then
+    if [ -d ${updatePath} ]; then
         rm -rf ${updatePath}
     fi
     mkdir -p ${updatePath}
@@ -430,7 +436,7 @@ install_hhminer() {
 }
 
 uninstall_hhminer() {
-    read -p "输入YES确认完全卸载hhminer（删除程序、服务、日志）: " confirm
+    read -p "输入YES确认完全卸载（删除程序、服务、日志）: " confirm
     if [ "$confirm" != "YES" ]; then
         echo -e "[${yellow}提示${plain}] 卸载操作已取消"
         return
@@ -438,26 +444,54 @@ uninstall_hhminer() {
     stop
     remove_service_file
     rm -rf ${installPath}
-    echo -e "[${green}成功${plain}] hhminer程序、服务、日志全部卸载完毕"
+    echo -e "[${green}成功${plain}] 程序、服务、日志全部卸载完毕"
 }
 
-# ===================== 主菜单（仅保留8项指定功能） =====================
+# ===================== 主菜单 =====================
 show_menu() {
     clear
-    echo -e "${bold}${blue}+=============================================+${plain}"
-    echo -e "${bold}        hhMiner 精简管理脚本 ${plain}"
-    echo -e "${bold}${blue}+=============================================+${plain}"
-    echo "  1. 安装/重装程序"
+    # 获取服务状态
+    get_service_status() {
+        local active_state
+        if ! is_systemd_available; then
+            service_status_color="$yellow"
+            service_status_text="systemd不可用"
+            return
+        fi
+        active_state=$(systemctl is-active "${serviceName}.service" 2>/dev/null)
+        case "$active_state" in
+        active)
+            service_status_color="$green"
+            service_status_text="运行中"
+            ;;
+        inactive|unknown|"")
+            service_status_color="$yellow"
+            service_status_text="已停止"
+            ;;
+        *)
+            service_status_color="$red"
+            service_status_text="异常"
+            ;;
+        esac
+    }
+    get_service_status
+
+    echo -e "${bold}${green}+=================================================================================================+${plain}"
+    echo -e "${bold}${green} SocatSystem ${VERSION}${plain}"
+    echo -e "${bold}${green}● 服务状态: ${service_status_color}${service_status_text}${plain}"
+    echo -e "${bold}${green}+=================================================================================================+${plain}"
+    echo "  1. 安装/重装"
     echo "  2. 启动服务"
     echo "  3. 停止服务"
     echo "  4. 重启服务"
     echo "  5. 解除系统TCP/文件句柄连接限制"
     echo "  6. 查看systemd服务日志"
     echo "  7. 实时错误日志"
-    echo "  8. 卸载hhminer完整程序"
-    echo -e "${bold}${blue}+=============================================+${plain}"
+    echo "  8. 卸载服务"
+    echo -e "${bold}${green}+=================================================================================================+${plain}"
     echo -e "${yellow}提示：连接限制修改后需重启服务器生效${plain}"
-    echo -e "${bold}${blue}+=============================================+${plain}"
+    echo -e "${yellow}技术支持：735840086${plain}"
+    echo -e "${bold}${green}+=================================================================================================+${plain}"
 }
 
 # ===================== 入口执行 =====================

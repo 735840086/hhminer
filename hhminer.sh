@@ -6,7 +6,6 @@ yellow='\033[0;33m'
 blue='\033[34m'
 bold='\033[1m'
 plain='\033[0m'
-
 # 基础路径配置
 installPath=/opt/SocatSystem
 updatePath=${installPath}/update
@@ -16,7 +15,6 @@ SYSCTL_TAG="${APP_ID}"
 PATH_NOHUP="${installPath}/nohup.out"
 PATH_ERR="${installPath}/err.log"
 VERSION="3.0.0"
-
 # ===================== 系统OS检测 =====================
 check_os() {
     if [[ -f /etc/redhat-release ]]; then
@@ -33,7 +31,6 @@ check_os() {
         os="centos"
     fi
 }
-
 # 获取公网IP
 get_ip(){
     local IP=$( ip addr | egrep -o '[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}' | egrep -v "^192\.168|^172\.1[6-9]\.|^172\.2[0-9]\.|^172\.3[0-2]\.|^10\.|^127\.|^255\.|^0\." | head -n 1 )
@@ -41,32 +38,37 @@ get_ip(){
     [ -z ${IP} ] && IP=$( wget -qO- -t1 -T2 ipinfo.io/ip )
     [ ! -z ${IP} ] && echo ${IP} || echo
 }
-
-# ===================== 【关闭防火墙函数 =====================
+# ===================== 关闭防火墙函数 =====================
 disable_firewall() {
     echo -e "[${yellow}操作${plain}] 开始关闭系统防火墙"
     local os_name="${os}"
     if [ "$os_name" = "ubuntu" ] && command -v ufw >/dev/null 2>&1; then
         ufw disable >/dev/null 2>&1
-        echo -e "[${green}成功${plain}] Ubuntu UFW防火墙已永久关闭"
+        echo -e "[${green}成功${plain}] Ubuntu UFW防火墙已关闭"
     elif [[ "$os_name" =~ ^centos$ ]] && command -v systemctl >/dev/null 2>&1; then
         systemctl stop firewalld >/dev/null 2>&1
         systemctl disable firewalld >/dev/null 2>&1
-        echo -e "[${green}成功${plain}] CentOS firewalld防火墙已永久关闭"
+        echo -e "[${green}成功${plain}] CentOS firewalld防火墙已关闭"
     else
         echo -e "[${yellow}提示${plain}] 当前系统无识别防火墙，跳过关闭操作"
     fi
 }
-
+# ===================== 【关闭开机启动函数】 =====================
+disable_autostart() {
+    if ! is_systemd_available; then
+        echo -e "[${red}错误${plain}] 当前系统不支持systemd，无法管理开机自启"
+        return 1
+    fi
+    systemctl disable "${serviceName}.service" >/dev/null 2>&1
+    echo -e "[${green}成功${plain}] 已关闭SocatSystem开机自动启动"
+}
 # ===================== 系统依赖/权限检测 =====================
 require_root() {
     [ "$(id -u)" != "0" ] && { echo -e "[${red}错误${plain}] 需要root权限执行脚本"; exit 1; }
 }
-
 is_systemd_available() {
     command -v systemctl >/dev/null 2>&1 && [ -d /run/systemd/system ]
 }
-
 check_dependencies() {
     local missing=""
     local cmd
@@ -84,12 +86,10 @@ check_dependencies() {
         return 1
     fi
 }
-
 # ===================== 进程操作工具 =====================
 check_process() {
     pgrep -x "$serviceName" >/dev/null 2>&1
 }
-
 wait_for_process_started() {
     local timeout="${2:-10}"
     local interval="1"
@@ -107,7 +107,6 @@ wait_for_process_started() {
     done
     return 1
 }
-
 wait_for_process_stopped() {
     local timeout="${2:-10}"
     local interval="1"
@@ -125,7 +124,6 @@ wait_for_process_stopped() {
     done
     return 1
 }
-
 kill_process() {
     local pids=($(pgrep -x "$serviceName"))
     if [ ${#pids[@]} -eq 0 ]; then
@@ -143,7 +141,6 @@ kill_process() {
         for pid in "${pids[@]}"; do kill -9 $pid; done
     fi
 }
-
 # ===================== 运行目录初始化 =====================
 ensure_runtime_files() {
     mkdir -p "$installPath"
@@ -152,7 +149,6 @@ ensure_runtime_files() {
     [ -f "$PATH_ERR" ] || touch "$PATH_ERR"
     chmod 640 "$PATH_NOHUP" "$PATH_ERR"
 }
-
 # ===================== systemd服务创建 =====================
 create_service() {
     ensure_runtime_files
@@ -185,11 +181,10 @@ if \$programname == '${serviceName}' then /var/log/${serviceName}.log
 EOT
     systemctl restart rsyslog > /dev/null 2>&1 &
     systemctl daemon-reload
-    # ===================== 安装自动启用开机启动 =====================
+    # 安装自动启用开机启动
     systemctl enable ${serviceName}
     echo -e "[${green}配置${plain}] 已设置服务开机自启"
 }
-
 remove_service_file() {
     if is_systemd_available; then
         systemctl disable --now "${serviceName}.service" >/dev/null 2>&1
@@ -200,7 +195,6 @@ remove_service_file() {
         systemctl daemon-reload
     fi
 }
-
 # ===================== 启停核心函数 =====================
 start() {
     echo -e "[${yellow}操作${plain}] 启动$serviceName服务"
@@ -230,7 +224,6 @@ start() {
         echo -e "[${red}错误${plain}] 服务启动失败"
     fi
 }
-
 stop() {
     echo -e "[${yellow}操作${plain}] 停止$serviceName进程"
     if is_systemd_available && [ -f "/lib/systemd/system/${serviceName}.service" ]; then
@@ -242,13 +235,11 @@ stop() {
         echo -e "[${yellow}提示${plain}] 未检测到运行的$serviceName进程"
     fi
 }
-
 restart() {
     stop
     sleep 1
     start
 }
-
 # ===================== TCP/文件句柄系统优化 =====================
 cleanup_global_network_optimization() {
     local keys=(
@@ -285,12 +276,10 @@ cleanup_global_network_optimization() {
     done
     rm -f "/etc/sysctl.d/99-${SYSCTL_TAG}-optimize.conf" /etc/sysctl.d/99-tcpmux-optimize.conf 2>/dev/null || true
 }
-
 sysctl_key_path() {
     local key="$1"
     echo "/proc/sys/${key//./\/}"
 }
-
 apply_sysctl_setting() {
     local key="$1"
     local value="$2"
@@ -307,7 +296,6 @@ apply_sysctl_setting() {
     fi
     return 1
 }
-
 apply_global_network_optimization() {
     local sysctl_file="/etc/sysctl.conf"
     local applied_count=0
@@ -378,7 +366,6 @@ EOF
     sysctl -p "$sysctl_file" >/dev/null 2>&1 || true
     echo -e "[${green}优化${plain}] 全局网络/文件句柄优化完成，修改项:${applied_count}，重启服务器生效"
 }
-
 # ===================== 日志查看函数 =====================
 view_systemd_log() {
     if ! command -v journalctl >/dev/null 2>&1; then
@@ -388,30 +375,25 @@ view_systemd_log() {
     echo -e "[${yellow}提示${plain}] 查看systemd服务日志，Ctrl+C退出"
     journalctl -u "${serviceName}.service" -n 100 -f
 }
-
 view_error_log() {
     echo -e "[${yellow}提示${plain}] 实时错误日志，按Ctrl+C退出查看"
     tail -f "$PATH_ERR"
 }
-
 # ===================== 安装/卸载 =====================
 install_Socatminer() {
     check_os
     check_dependencies
-
     # 关闭防火墙
     echo -e "[${yellow}前置执行${plain}] 关闭系统防火墙"
     disable_firewall
-
     # TCP/文件句柄优化
     echo -e "[${yellow}前置执行${plain}] 开始解除系统TCP/文件句柄连接限制"
     apply_global_network_optimization
     echo -e "[${green}执行完成${plain}] 系统内核优化执行完毕，继续部署程序"
-
     case $os in
         'ubuntu'|'debian')
             apt-get -y update >/dev/null 2>&1
-            apt-get -y install wget git >/dev/null 2>&1
+            apt-get -y install wget git >/dev/null
             ;;
         'centos')
             yum install -y wget git >/dev/null 2>&1
@@ -454,11 +436,10 @@ install_Socatminer() {
     fi
     mv "${updatePath}/Socatminer" "${installPath}/Socatminer"
     mv "${updatePath}/version" "${installPath}/version"
-    # create_service内部自动enable开机启动（移植逻辑）
+    # create_service内部自动enable开机启动
     create_service
     start
 }
-
 uninstall_Socatminer() {
     read -p "输入YES确认完全卸载（删除程序、服务、日志）: " confirm
     if [ "$confirm" != "YES" ]; then
@@ -470,8 +451,7 @@ uninstall_Socatminer() {
     rm -rf ${installPath}
     echo -e "[${green}成功${plain}] 程序、服务、日志全部卸载完毕"
 }
-
-# ===================== 主菜单 =====================
+# ===================== 主菜单（关闭开机启动） =====================
 show_menu() {
     clear
     # 获取服务状态
@@ -503,7 +483,7 @@ show_menu() {
     echo -e "${bold}${green} SocatSystem 版本：${VERSION}${plain}"
     echo -e "${bold}${service_status_color}● 服务状态: ${service_status_color}${service_status_text}${plain}"
     echo -e "${bold}${green}+============================================================+${plain}"
-    echo "  1. 安装/重装（自动关防火墙+内核优化+开机自启）"
+    echo "  1. 安装/重装"
     echo "  2. 启动服务"
     echo "  3. 停止服务"
     echo "  4. 重启服务"
@@ -511,18 +491,17 @@ show_menu() {
     echo "  6. 查看systemd服务日志"
     echo "  7. 实时错误日志"
     echo "  8. 卸载服务"
+    echo "  9. 关闭开机自动启动"
     echo -e "${bold}${green}+============================================================+${plain}"
     echo -e "${yellow}⭐️提示：解除系统TCP/文件句柄连接限制后需重启服务器生效${plain}"
     echo -e "${yellow}⭐️技术支持：735840086${plain}"
     echo -e "${bold}${green}+============================================================+${plain}"
 }
-
 # ===================== 入口执行 =====================
 if [ "$EUID" -ne 0 ]; then
     echo -e "[${red}错误${plain}] 请使用root权限执行本脚本"
     exit 1;
 fi
-
 while true; do
     show_menu
     read -p "请输入操作: " opt
@@ -535,6 +514,7 @@ while true; do
     6) view_systemd_log ;;
     7) view_error_log ;;
     8) uninstall_Socatminer ;;
+    9) disable_autostart ;;
     *)
         echo -e "[${red}错误${plain}] 输入无效，回车返回菜单"
         read

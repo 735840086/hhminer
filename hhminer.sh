@@ -485,8 +485,9 @@ show_menu() {
     }
     get_service_status
     echo -e "${bold}${green}+============================================================+${plain}"
-    echo -e "${bold}${green}    SocatSystem 版本：${VERSION}${plain}"
-    echo -e "${bold}${service_status_color}   ● 服务状态: ${service_status_color}${service_status_text}${plain}"
+    echo -e "${bold}${green}    SocatSystem 部署服务"
+    echo -e "${bold}${service_status_color}    ● 服务状态: ${service_status_color}${service_status_text}${plain}"
+    echo -e "${bold}${green}                                                          版本：${VERSION}${plain}"
     echo -e "${bold}${green}+============================================================+${plain}"
     echo "  1. 安装/重装"
     echo "  2. 启动服务"

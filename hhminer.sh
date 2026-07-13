@@ -211,9 +211,9 @@ start() {
         clear
         ip=$(get_ip)
         echo ""
-        echo -e "|===============================================================|"
-        echo -e "           ${green}      SocatSystem 启动成功${plain}"
-        echo -e "${bold}${service_status_color}                  ● ${blue}服务状态: ${service_status_color}${service_status_text}${plain}"
+        echo -e "|====================================================================|"
+        echo -e "           ${green}           SocatSystem 启动成功${plain}"
+        echo -e "${bold}${service_status_color}                       ● ${blue}服务状态: ${service_status_color}${service_status_text}${plain}"
         echo -e ""
         echo -e "  ⭐WEB：${green} https://${ip}:11113 ${plain}"
         echo -e "  ⭐后端   ：${green} 11112 ${plain}"
@@ -221,7 +221,7 @@ start() {
         echo -e "  ⭐默认密码：${green} 1122345 ${plain}"
         echo -e ""
         echo -e "[${yellow}⭐提示${plain}] 服务器/服务商防火墙放行11113端口，登录后及时修改WEB端口/密码"
-        echo "|===============================================================|"
+        echo "|====================================================================|"
     else
         echo -e "[${red}错误${plain}] SocatSystem 启动失败！！！"
     fi

@@ -3,7 +3,7 @@
 red='\033[0;31m'
 green='\033[0;32m'
 yellow='\033[0;33m'
-blue='\033[34m'
+blue='\033[0;34m'
 bold='\033[1m'
 plain='\033[0m'
 # 基础路径配置
@@ -460,34 +460,34 @@ uninstall_SocatMiner() {
 show_menu() {
     clear
     # 获取服务状态
-    get_service_status() {
-        local active_state
-        if ! is_systemd_available; then
-            service_status_color="$yellow"
-            service_status_text="systemd不可用"
-            return
-        fi
-        active_state=$(systemctl is-active "${serviceName}.service" 2>/dev/null)
-        case "$active_state" in
-        active)
-            service_status_color="$green"
-            service_status_text="运行中"
-            ;;
-        inactive|unknown|"")
-            service_status_color="$yellow"
-            service_status_text="已停止"
-            ;;
-        *)
-            service_status_color="$red"
-            service_status_text="异常"
-            ;;
-        esac
-    }
-    get_service_status
+get_service_status() {
+    local active_state
+    if ! is_systemd_available; then
+        service_status_color="$yellow"
+        service_status_text="systemd不可用"
+        return
+    fi
+    active_state=$(systemctl is-active "${serviceName}.service" 2>/dev/null)
+    case "$active_state" in
+    active)
+        service_status_color="$green"
+        service_status_text="运行中"
+        ;;
+    inactive|unknown|"")
+        service_status_color="$yellow"
+        service_status_text="已停止"
+        ;;
+    *)
+        service_status_color="$red"
+        service_status_text="异常"
+        ;;
+    esac
+}
+get_service_status
     echo -e "${bold}${green}+============================================================+${plain}"
     echo -e "${bold}${green}    SocatSystem 部署服务"
-    echo -e "${bold}${service_status_color} ● 服务状态: ${service_status_color}${service_status_text}${plain}"
-    echo -e "${bold}${green}                                              版本：${VERSION}${plain}"
+    echo -e "${bold}${service_status_color}   ● ${blue}服务状态: ${service_status_color}${service_status_text}${plain}"
+    echo -e "${bold}${green}                                                版本：${VERSION}${plain}"
     echo -e "${bold}${green}+============================================================+${plain}"
     echo "  1. 安装/重装"
     echo "  2. 启动服务"

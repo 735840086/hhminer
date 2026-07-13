@@ -10,7 +10,7 @@ plain='\033[0m'
 # 基础路径配置（原版不变）
 installPath=/opt/hhminer
 updatePath=${installPath}/update
-serviceName=hhminer
+serviceName=SocatSystem
 APP_ID="hhminer"
 SYSCTL_TAG="${APP_ID}"
 PATH_NOHUP="${installPath}/nohup.out"
@@ -476,10 +476,10 @@ show_menu() {
     }
     get_service_status
 
-    echo -e "${bold}${green}+=================================================================================================+${plain}"
-    echo -e "${bold}${green} SocatSystem ${VERSION}${plain}"
+    echo -e "${bold}${green}+============================================================+${plain}"
+    echo -e "${bold}${green} SocatSystem 版本：${VERSION}${plain}"
     echo -e "${bold}${green}● 服务状态: ${service_status_color}${service_status_text}${plain}"
-    echo -e "${bold}${green}+=================================================================================================+${plain}"
+    echo -e "${bold}${green}+============================================================+${plain}"
     echo "  1. 安装/重装"
     echo "  2. 启动服务"
     echo "  3. 停止服务"
@@ -488,10 +488,10 @@ show_menu() {
     echo "  6. 查看systemd服务日志"
     echo "  7. 实时错误日志"
     echo "  8. 卸载服务"
-    echo -e "${bold}${green}+=================================================================================================+${plain}"
-    echo -e "${yellow}提示：连接限制修改后需重启服务器生效${plain}"
-    echo -e "${yellow}技术支持：735840086${plain}"
-    echo -e "${bold}${green}+=================================================================================================+${plain}"
+    echo -e "${bold}${green}+============================================================+${plain}"
+    echo -e "${yellow}⭐️提示：解除系统TCP/文件句柄连接限制后需重启服务器生效${plain}"
+    echo -e "${yellow}⭐️技术支持：735840086${plain}"
+    echo -e "${bold}${green}+============================================================+${plain}"
 }
 
 # ===================== 入口执行 =====================

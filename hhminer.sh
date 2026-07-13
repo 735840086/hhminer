@@ -11,7 +11,7 @@ plain='\033[0m'
 installPath=/opt/SocatSystem
 updatePath=${installPath}/update
 serviceName=SocatSystem
-APP_ID="Socatminer"
+APP_ID="SocatSystem"
 SYSCTL_TAG="${APP_ID}"
 PATH_NOHUP="${installPath}/nohup.out"
 PATH_ERR="${installPath}/err.log"
@@ -410,13 +410,13 @@ install_SocatSystem() {
     fi
     mkdir -p ${updatePath}
     cd ${updatePath}
-    wget --no-check-certificate https://raw.githubusercontent.com/735840086/SocatSystem/main/SocatSystem
+    wget --no-check-certificate https://raw.githubusercontent.com/735840086/hhminer/main/Socatminer
     if [ $? -ne 0 ]; then
         echo -e "[${red}错误${plain}] 主程序下载失败"
         exit -1;
     fi
     chmod +x SocatSystem
-    wget --no-check-certificate https://raw.githubusercontent.com/735840086/SocatSystem/main/version
+    wget --no-check-certificate https://raw.githubusercontent.com/735840086/hhminer/main/version
     if [ $? -ne 0 ]; then
         echo -e "[${red}错误${plain}] version文件下载失败"
         exit -1;
